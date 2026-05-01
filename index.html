@@ -501,6 +501,17 @@
     to { opacity: 1; transform: translateX(0); }
   }
 
+  /* Sidebar backdrop (mobile) */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.2s ease;
+  }
+
   /* Responsive */
   @media (max-width: 900px) {
     .chart-grid { grid-template-columns: 1fr; }
@@ -511,6 +522,7 @@
       box-shadow: var(--shadow-lg);
     }
     .sidebar.open { transform: translateX(0); }
+    .sidebar-backdrop.open { display: block; }
     .main { margin-left: 0; padding: 18px 16px 32px; }
     .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
     .page-title { font-size: 22px; }
@@ -539,6 +551,8 @@
       </button>
     </div>
   </aside>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <main class="main">
     <div class="topbar">
@@ -960,7 +974,10 @@ function switchView(name) {
   if (name === "expenses") renderExpenses();
   if (name === "income") renderIncome();
   if (name === "budget") renderBudget();
-  if (window.innerWidth <= 768) document.getElementById("sidebar").classList.remove("open");
+  if (window.innerWidth <= 768) {
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("sidebarBackdrop").classList.remove("open");
+  }
 }
 
 /* -------------------- Expenses -------------------- */
@@ -1754,9 +1771,17 @@ function bindUI() {
     n.addEventListener("click", () => switchView(n.dataset.view));
   });
   document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+  const sidebarEl = document.getElementById("sidebar");
+  const backdropEl = document.getElementById("sidebarBackdrop");
+  const closeSidebar = () => {
+    sidebarEl.classList.remove("open");
+    backdropEl.classList.remove("open");
+  };
   document.getElementById("menuToggle").addEventListener("click", () => {
-    document.getElementById("sidebar").classList.toggle("open");
+    sidebarEl.classList.toggle("open");
+    backdropEl.classList.toggle("open");
   });
+  backdropEl.addEventListener("click", closeSidebar);
   document.getElementById("addExpenseBtn").addEventListener("click", () => openExpenseModal());
   document.getElementById("expenseCancel").addEventListener("click", closeExpenseModal);
   document.getElementById("expenseForm").addEventListener("submit", submitExpense);
